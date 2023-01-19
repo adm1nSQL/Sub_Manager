@@ -18,7 +18,7 @@ c.execute('''CREATE TABLE IF NOT EXISTS My_sub(URL text, comment text)''')
 
 
 # 接收用户输入的指令
-@bot.message_handler(commands=['add', 'delete', 'search', 'update', 'help'])
+@bot.message_handler(commands=['add', 'del', 'search', 'update', 'help'])
 def handle_command(message):
     if str(message.from_user.id) in admin_id:
         command = message.text.split()[0]
