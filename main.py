@@ -123,7 +123,7 @@ def callback_inline(call):
             now_user = f" @{call.from_user.username} "
         else:
             now_user = f" tg://user?id={call.from_user.id} "
-        bot.send_message(call.message.chat.id, now_user + "你没有管理权限！天地三清，道法无敌，邪魔退让！👮‍♂️")
+        bot.send_message(call.message.chat.id, now_user + "你没有管理权限！天地三清，道法无敌，邪魔退让！退！退！退！👮‍♂️")
 
 
 # 使用帮助
@@ -134,7 +134,7 @@ def help_sub(message):
     2. 删除数据：/del 行数
     3. 查找数据：/search 内容
     4. 修改数据：/update 行数 订阅链接 备注
-    5. 导入xlsx表格：发送xlsx表格（注意文件格式！！！）
+    5. 导入xlsx表格：发送xlsx表格（注意文件格式！A列为订阅地址，B列为备注说明）
     '''
     bot.send_message(message.chat.id, doc)
 
