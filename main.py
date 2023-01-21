@@ -69,9 +69,10 @@ def search_sub(message):
         keyboard = []
         for row in result:
             keyboard.append([telebot.types.InlineKeyboardButton(row[2], callback_data=row[0])])
+        total = len(keyboard)
         keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
         reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
-        bot.reply_to(message, '卧槽，天降订阅！！！快点击查看⏬', reply_markup=reply_markup)
+        bot.reply_to(message, '卧槽，天降订阅！！！发现了【' + str(total) + '】条订阅' + '快点击查看⏬', reply_markup=reply_markup)
     else:
         bot.reply_to(message, '😅没有查找到结果！')
 
