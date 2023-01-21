@@ -4,7 +4,8 @@ import pandas as pd
 from time import sleep
 
 # 定义bot管理员的telegram userid
-admin_id = ['管理员1的TG_ID', '管理员2的TG_ID', '管理员3的TG_ID']
+super_admin_id = ['超级管理员的TG_ID']
+admin_id = ['管理员1的TG_ID', '管理员2的TG_ID', '管理员3的TG_ID'] # 没有则留空[]
 
 # 定义bot
 bot = telebot.TeleBot('你的BOT_TOKEN')
@@ -20,7 +21,7 @@ c.execute('''CREATE TABLE IF NOT EXISTS My_sub(URL text, comment text)''')
 # 接收用户输入的指令
 @bot.message_handler(commands=['add', 'del', 'search', 'update', 'help'])
 def handle_command(message):
-    if str(message.from_user.id) in admin_id:
+    if str(message.from_user.id) in admin_id or super_admin_id:
         command = message.text.split()[0]
         if command == '/add':
             add_sub(message)
@@ -53,10 +54,13 @@ def add_sub(message):
 
 # 删除数据
 def delete_sub(message):
-    row_num = message.text.split()[1]
-    c.execute("DELETE FROM My_sub WHERE rowid=?", (row_num,))
-    conn.commit()
-    bot.reply_to(message, "✅删除成功！")
+    if str(message.from_user.id) in super_admin_id:
+        row_num = message.text.split()[1]
+        c.execute("DELETE FROM My_sub WHERE rowid=?", (row_num,))
+        conn.commit()
+        bot.reply_to(message, "✅删除成功！")
+    else:
+        bot.reply_to(message, "🔐该操作仅限超级管理员！")
 
 
 # 查找数据
@@ -79,19 +83,22 @@ def search_sub(message):
 
 # 更新数据
 def update_sub(message):
-    row_num = message.text.split()[1]
-    url_comment = message.text.split()[2:]
-    url = url_comment[0]
-    comment = url_comment[1]
-    c.execute("UPDATE My_sub SET URL=?, comment=? WHERE rowid=?", (url, comment, row_num))
-    conn.commit()
-    bot.reply_to(message, "✅更新成功！")
+    if str(message.from_user.id) in super_admin_id:
+        row_num = message.text.split()[1]
+        url_comment = message.text.split()[2:]
+        url = url_comment[0]
+        comment = url_comment[1]
+        c.execute("UPDATE My_sub SET URL=?, comment=? WHERE rowid=?", (url, comment, row_num))
+        conn.commit()
+        bot.reply_to(message, "✅更新成功！")
+    else:
+        bot.reply_to(message, "🔐该操作仅限超级管理员！")
 
 
 # 接收xlsx表格
 @bot.message_handler(content_types=['document'])
 def handle_document(message):
-    if str(message.from_user.id) in admin_id:
+    if str(message.from_user.id) in super_admin_id:
         file_id = message.document.file_id
         file_info = bot.get_file(file_id)
         file = bot.download_file(file_info.file_path)
@@ -105,13 +112,13 @@ def handle_document(message):
                 conn.commit()
         bot.reply_to(message, "✅导入成功！")
     else:
-        bot.reply_to(message, "😡😡😡你不是管理员，禁止操作！")
+        bot.reply_to(message, "🔐该操作仅限超级管理员！")
 
 
 # 按钮点击事件
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
-    if str(call.from_user.id) in admin_id:
+    if str(call.from_user.id) in admin_id or super_admin_id:
         if call.data == 'close':
             bot.delete_message(call.message.chat.id, call.message.message_id)
         else:
@@ -145,5 +152,5 @@ if __name__ == '__main__':
     while True:
         try:
             bot.polling(none_stop=True)
-        except Exception as e:
+        except RuntimeError as e:
             sleep(15)
