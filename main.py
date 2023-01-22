@@ -45,73 +45,88 @@ def handle_command(message):
 
 # 添加数据
 def add_sub(message):
-    url_comment = message.text.split()[1:]
-    url = url_comment[0]
-    comment = url_comment[1]
-    c.execute("SELECT * FROM My_sub WHERE URL=?", (url,))
-    if c.fetchone():
-        bot.reply_to(message, "😅订阅已存在！")
-    else:
-        c.execute("INSERT INTO My_sub VALUES(?,?)", (url, comment))
-        conn.commit()
-        bot.reply_to(message, "✅添加成功！")
+    try:
+        url_comment = message.text.split()[1:]
+        url = url_comment[0]
+        comment = url_comment[1]
+        c.execute("SELECT * FROM My_sub WHERE URL=?", (url,))
+        if c.fetchone():
+            bot.reply_to(message, "😅订阅已存在！")
+        else:
+            c.execute("INSERT INTO My_sub VALUES(?,?)", (url, comment))
+            conn.commit()
+            bot.reply_to(message, "✅添加成功！")
+    except AssertionError:
+        bot.send_message(message.chat.id, "😵😵输入格式有误，请检查后重新输入")
 
 
 # 删除数据
 def delete_sub(message):
-    row_num = message.text.split()[1]
-    c.execute("DELETE FROM My_sub WHERE rowid=?", (row_num,))
-    conn.commit()
-    bot.reply_to(message, "✅删除成功！")
+    try:
+        row_num = message.text.split()[1]
+        c.execute("DELETE FROM My_sub WHERE rowid=?", (row_num,))
+        conn.commit()
+        bot.reply_to(message, "✅删除成功！")
+    except LookupError:
+        bot.send_message(message.chat.id, "😵😵输入格式有误，请检查后重新输入")
 
 
 # 查找数据
 def search_sub(message):
-    search_str = message.text.split()[1]
-    c.execute("SELECT rowid,URL,comment FROM My_sub WHERE URL LIKE ? OR comment LIKE ?",
-              ('%' + search_str + '%', '%' + search_str + '%'))
-    result = c.fetchall()
-    if result:
-        keyboard = []
-        for row in result:
-            keyboard.append([telebot.types.InlineKeyboardButton(row[2], callback_data=row[0])])
-        total = len(keyboard)
-        keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
-        reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
-        bot.reply_to(message, '卧槽，天降订阅！！！发现了【' + str(total) + '】条订阅' + '快点击查看⏬', reply_markup=reply_markup)
-    else:
-        bot.reply_to(message, '😅没有查找到结果！')
+    try:
+        search_str = message.text.split()[1]
+        c.execute("SELECT rowid,URL,comment FROM My_sub WHERE URL LIKE ? OR comment LIKE ?",
+                  ('%' + search_str + '%', '%' + search_str + '%'))
+        result = c.fetchall()
+        if result:
+            keyboard = []
+            for row in result:
+                keyboard.append([telebot.types.InlineKeyboardButton(row[2], callback_data=row[0])])
+            total = len(keyboard)
+            keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
+            reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
+            bot.reply_to(message, '卧槽，天降订阅！！！发现了【' + str(total) + '】条订阅' + '快点击查看⏬', reply_markup=reply_markup)
+        else:
+            bot.reply_to(message, '😅没有查找到结果！')
+    except LookupError:
+        bot.send_message(message.chat.id, "😵😵您输入的内容有误，请检查后重新输入")
 
 
 # 更新数据
 def update_sub(message):
-    row_num = message.text.split()[1]
-    url_comment = message.text.split()[2:]
-    url = url_comment[0]
-    comment = url_comment[1]
-    c.execute("UPDATE My_sub SET URL=?, comment=? WHERE rowid=?", (url, comment, row_num))
-    conn.commit()
-    bot.reply_to(message, "✅更新成功！")
+    try:
+        row_num = message.text.split()[1]
+        url_comment = message.text.split()[2:]
+        url = url_comment[0]
+        comment = url_comment[1]
+        c.execute("UPDATE My_sub SET URL=?, comment=? WHERE rowid=?", (url, comment, row_num))
+        conn.commit()
+        bot.reply_to(message, "✅更新成功！")
+    except LookupError:
+        bot.send_message(message.chat.id, "😵😵输入格式有误，请检查后重新输入")
 
 
 # 接收xlsx表格
 @bot.message_handler(content_types=['document'])
 def handle_document(message):
-    if str(message.from_user.id) in admin_id:
-        file_id = message.document.file_id
-        file_info = bot.get_file(file_id)
-        file = bot.download_file(file_info.file_path)
-        with open('sub.xlsx', 'wb') as f:
-            f.write(file)
-        df = pd.read_excel('sub.xlsx')
-        for i in range(len(df)):
-            c.execute("SELECT * FROM My_sub WHERE URL=?", (df.iloc[i, 0],))
-            if not c.fetchone():
-                c.execute("INSERT INTO My_sub VALUES(?,?)", (df.iloc[i, 0], df.iloc[i, 1]))
-                conn.commit()
-        bot.reply_to(message, "✅导入成功！")
-    else:
-        bot.reply_to(message, "😡😡😡你不是管理员，禁止操作！")
+    try:
+        if str(message.from_user.id) in admin_id:
+            file_id = message.document.file_id
+            file_info = bot.get_file(file_id)
+            file = bot.download_file(file_info.file_path)
+            with open('sub.xlsx', 'wb') as f:
+                f.write(file)
+            df = pd.read_excel('sub.xlsx')
+            for i in range(len(df)):
+                c.execute("SELECT * FROM My_sub WHERE URL=?", (df.iloc[i, 0],))
+                if not c.fetchone():
+                    c.execute("INSERT INTO My_sub VALUES(?,?)", (df.iloc[i, 0], df.iloc[i, 1]))
+                    conn.commit()
+            bot.reply_to(message, "✅导入成功！")
+        else:
+            bot.reply_to(message, "😡😡😡你不是管理员，禁止操作！")
+    except TypeError:
+        bot.send_message(message.chat.id, "😵😵导入的文件格式错误，请检查后重新导入")
 
 
 # 按钮点击事件
@@ -125,7 +140,7 @@ def callback_inline(call):
                 row_num = call.data
                 c.execute("SELECT rowid,URL,comment FROM My_sub WHERE rowid=?", (row_num,))
                 result = c.fetchone()
-                bot.send_message(call.message.chat.id, '行号：{}\n订阅地址：{}\n说明：{}'.format(result[0], result[1], result[2]))
+                bot.send_message(call.message.chat.id, '行号：{}\n订阅地址：{}\n说明： {}'.format(result[0], result[1], result[2]))
                 logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
         else:
             if call.from_user.username is not None:
@@ -133,7 +148,7 @@ def callback_inline(call):
             else:
                 now_user = f" tg://user?id={call.from_user.id} "
             bot.send_message(call.message.chat.id, now_user + "你没有管理权限！天地三清，道法无敌，邪魔退让！退！退！退！👮‍♂️")
-    except TypeError:
+    except DeprecationWarning:
         bot.send_message(call.message.chat.id, "😵😵这个订阅刚刚被其他管理员删了，请尝试其他操作")
 
 
@@ -155,5 +170,5 @@ if __name__ == '__main__':
     while True:
         try:
             bot.polling(none_stop=True)
-        except RuntimeError as e:
+        except RuntimeError:
             sleep(30)
