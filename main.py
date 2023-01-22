@@ -1,7 +1,7 @@
 import sqlite3
 import telebot
 import pandas as pd
-import time
+from time import sleep
 from loguru import logger
 
 # 1.22增加了日志功能，记录用户使用的指令和获取的订阅日志
@@ -156,4 +156,4 @@ if __name__ == '__main__':
         try:
             bot.polling(none_stop=True)
         except RuntimeError as e:
-            time.sleep(30)
+            sleep(30)
