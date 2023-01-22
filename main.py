@@ -5,7 +5,7 @@ from time import sleep
 
 # 定义bot管理员的telegram userid
 super_admin_id = ['超级管理员的TG_ID']
-admin_id = ['管理员1的TG_ID', '管理员2的TG_ID', '管理员3的TG_ID'] # 没有则留空[]
+admin_id = ['普通管理员1的TG_ID', '普通管理员2的TG_ID']  # 如果没有普通管理员，留空[]
 
 # 定义bot
 bot = telebot.TeleBot('你的BOT_TOKEN')
@@ -35,7 +35,7 @@ def handle_command(message):
             help_sub(message)
     else:
         # bot.send_message(message.chat.id, "❌你没有操作权限，别瞎搞！")
-        bot.reply_to(message, "❌你没有操作权限，别瞎搞！")
+        bot.reply_to(message, "❌你没有操作权限，别瞎搞！", timeout=30)
 
 
 # 添加数据
@@ -45,11 +45,11 @@ def add_sub(message):
     comment = url_comment[1]
     c.execute("SELECT * FROM My_sub WHERE URL=?", (url,))
     if c.fetchone():
-        bot.reply_to(message, "😅订阅已存在！")
+        bot.reply_to(message, "😅订阅已存在！", timeout=30)
     else:
         c.execute("INSERT INTO My_sub VALUES(?,?)", (url, comment))
         conn.commit()
-        bot.reply_to(message, "✅添加成功！")
+        bot.reply_to(message, "✅添加成功！", timeout=30)
 
 
 # 删除数据
@@ -60,7 +60,7 @@ def delete_sub(message):
         conn.commit()
         bot.reply_to(message, "✅删除成功！")
     else:
-        bot.reply_to(message, "🔐该操作仅限超级管理员！")
+        bot.reply_to(message, "🔐该操作仅限超级管理员！", timeout=30)
 
 
 # 查找数据
@@ -76,9 +76,9 @@ def search_sub(message):
         total = len(keyboard)
         keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
         reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
-        bot.reply_to(message, '卧槽，天降订阅！！！发现了【' + str(total) + '】条订阅' + '快点击查看⏬', reply_markup=reply_markup)
+        bot.reply_to(message, '卧槽，天降订阅！！！发现了【' + str(total) + '】条订阅' + '快点击查看⏬', reply_markup=reply_markup, timeout=30)
     else:
-        bot.reply_to(message, '😅没有查找到结果！')
+        bot.reply_to(message, '😅没有查找到结果！', timeout=30)
 
 
 # 更新数据
@@ -90,9 +90,9 @@ def update_sub(message):
         comment = url_comment[1]
         c.execute("UPDATE My_sub SET URL=?, comment=? WHERE rowid=?", (url, comment, row_num))
         conn.commit()
-        bot.reply_to(message, "✅更新成功！")
+        bot.reply_to(message, "✅更新成功！", timeout=30)
     else:
-        bot.reply_to(message, "🔐该操作仅限超级管理员！")
+        bot.reply_to(message, "🔐该操作仅限超级管理员！", timeout=30)
 
 
 # 接收xlsx表格
@@ -110,9 +110,9 @@ def handle_document(message):
             if not c.fetchone():
                 c.execute("INSERT INTO My_sub VALUES(?,?)", (df.iloc[i, 0], df.iloc[i, 1]))
                 conn.commit()
-        bot.reply_to(message, "✅导入成功！")
+        bot.reply_to(message, "✅导入成功！", timeout=30)
     else:
-        bot.reply_to(message, "🔐该操作仅限超级管理员！")
+        bot.reply_to(message, "🔐该操作仅限超级管理员！", timeout=30)
 
 
 # 按钮点击事件
@@ -125,13 +125,13 @@ def callback_inline(call):
             row_num = call.data
             c.execute("SELECT rowid,URL,comment FROM My_sub WHERE rowid=?", (row_num,))
             result = c.fetchone()
-            bot.send_message(call.message.chat.id, '行号：{}\n订阅地址：{}\n说明：{}'.format(result[0], result[1], result[2]))
+            bot.send_message(call.message.chat.id, '行号：{}\n订阅地址：{}\n说明：{}'.format(result[0], result[1], result[2]), timeout=30)
     else:
         if call.from_user.username is not None:
             now_user = f" @{call.from_user.username} "
         else:
             now_user = f" tg://user?id={call.from_user.id} "
-        bot.send_message(call.message.chat.id, now_user + "你没有管理权限！天地三清，道法无敌，邪魔退让！退！退！退！👮‍♂️")
+        bot.send_message(call.message.chat.id, now_user + "你没有管理权限！天地三清，道法无敌，邪魔退让！退！退！退！👮‍♂️", timeout=30)
 
 
 # 使用帮助
@@ -144,7 +144,7 @@ def help_sub(message):
     4. 修改数据：/update 行数 订阅链接 备注
     5. 导入xlsx表格：发送xlsx表格（注意文件格式！A列为订阅地址，B列为备注说明）
     '''
-    bot.send_message(message.chat.id, doc)
+    bot.send_message(message.chat.id, doc, timeout=30)
 
 
 if __name__ == '__main__':
@@ -153,4 +153,4 @@ if __name__ == '__main__':
         try:
             bot.polling(none_stop=True)
         except RuntimeError as e:
-            sleep(15)
+            sleep(30)
