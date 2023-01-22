@@ -23,14 +23,14 @@ c.execute('''CREATE TABLE IF NOT EXISTS My_sub(URL text, comment text)''')
 
 
 # 接收用户输入的指令
-@bot.message_handler(commands=['add', 'delete', 'search', 'update', 'help'])
+@bot.message_handler(commands=['add', 'del', 'search', 'update', 'help'])
 def handle_command(message):
     if str(message.from_user.id) in admin_id:
         command = message.text.split()[0]
         logger.debug(f"用户{message.from_user.id}使用了{command}功能")
         if command == '/add':
             add_sub(message)
-        elif command == '/delete':
+        elif command == '/del':
             delete_sub(message)
         elif command == '/search':
             search_sub(message)
@@ -139,7 +139,7 @@ def help_sub(message):
     doc = '''
     使用说明：
     1. 添加数据：/add url 备注
-    2. 删除数据：/delete 行数
+    2. 删除数据：/del 行数
     3. 查找数据：/search 内容
     4. 修改数据：/update 行数 订阅链接 备注
     5. 导入xlsx表格：发送xlsx表格（注意文件格式！A列为订阅地址，B列为对应的备注）
