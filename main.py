@@ -23,14 +23,14 @@ c.execute('''CREATE TABLE IF NOT EXISTS My_sub(URL text, comment text)''')
 
 
 # 接收用户输入的指令
-@bot.message_handler(commands=['add', 'del', 'search', 'update', 'help'])
+@bot.message_handler(commands=['add', 'delete', 'search', 'update', 'help'])
 def handle_command(message):
     if str(message.from_user.id) in admin_id:
         command = message.text.split()[0]
         logger.debug(f"用户{message.from_user.id}使用了{command}功能")
         if command == '/add':
             add_sub(message)
-        elif command == '/del':
+        elif command == '/delete':
             delete_sub(message)
         elif command == '/search':
             search_sub(message)
@@ -117,21 +117,24 @@ def handle_document(message):
 # 按钮点击事件
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
-    if str(call.from_user.id) in admin_id:
-        if call.data == 'close':
-            bot.delete_message(call.message.chat.id, call.message.message_id)
+    try:
+        if str(call.from_user.id) in admin_id:
+            if call.data == 'close':
+                bot.delete_message(call.message.chat.id, call.message.message_id)
+            else:
+                row_num = call.data
+                c.execute("SELECT rowid,URL,comment FROM My_sub WHERE rowid=?", (row_num,))
+                result = c.fetchone()
+                bot.send_message(call.message.chat.id, '行号：{}\n订阅地址：{}\n说明：{}'.format(result[0], result[1], result[2]))
+                logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
         else:
-            row_num = call.data
-            c.execute("SELECT rowid,URL,comment FROM My_sub WHERE rowid=?", (row_num,))
-            result = c.fetchone()
-            bot.send_message(call.message.chat.id, '行号：{}\n订阅地址：{}\n说明：{}'.format(result[0], result[1], result[2]))
-            logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
-    else:
-        if call.from_user.username is not None:
-            now_user = f" @{call.from_user.username} "
-        else:
-            now_user = f" tg://user?id={call.from_user.id} "
-        bot.send_message(call.message.chat.id, now_user + "你没有管理权限！天地三清，道法无敌，邪魔退让！退！退！退！👮‍♂️")
+            if call.from_user.username is not None:
+                now_user = f" @{call.from_user.username} "
+            else:
+                now_user = f" tg://user?id={call.from_user.id} "
+            bot.send_message(call.message.chat.id, now_user + "你没有管理权限！天地三清，道法无敌，邪魔退让！退！退！退！👮‍♂️")
+    except TypeError:
+        bot.send_message(call.message.chat.id, "该订阅刚刚被删了，请尝试其他操作")
 
 
 # 使用帮助
@@ -139,7 +142,7 @@ def help_sub(message):
     doc = '''
     使用说明：
     1. 添加数据：/add url 备注
-    2. 删除数据：/del 行数
+    2. 删除数据：/delete 行数
     3. 查找数据：/search 内容
     4. 修改数据：/update 行数 订阅链接 备注
     5. 导入xlsx表格：发送xlsx表格（注意文件格式！A列为订阅地址，B列为对应的备注）
