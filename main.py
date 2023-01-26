@@ -80,8 +80,13 @@ def search_sub(message):
         result = c.fetchall()
         if result:
             keyboard = []
-            for row in result:
-                keyboard.append([telebot.types.InlineKeyboardButton(row[2], callback_data=row[0])])
+            for i in range(0, len(result), 2):
+                row = result[i:i + 2]
+                keyboard_row = []
+                for item in row:
+                    button = telebot.types.InlineKeyboardButton(item[2], callback_data=item[0])
+                    keyboard_row.append(button)
+                keyboard.append(keyboard_row)
             total = len(keyboard)
             keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
             reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
@@ -155,7 +160,8 @@ def callback_inline(call):
 # 使用帮助
 def help_sub(message):
     doc = '''
-    使用说明：
+    时间有限暂未做太多异常处理，请遵循使用说明的格式规则，否则程序可能出错,如果出现异常情况，联系 @KKAA2222 处理
+    🌈使用说明：
     1. 添加数据：/add url 备注
     2. 删除数据：/del 行数
     3. 查找数据：/search 内容
@@ -170,5 +176,5 @@ if __name__ == '__main__':
     while True:
         try:
             bot.polling(none_stop=True)
-        except RuntimeError:
+        except Exception as e:
             sleep(30)
