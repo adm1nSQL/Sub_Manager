@@ -6,7 +6,6 @@ from loguru import logger
 
 # 1.22增加了日志功能，记录用户使用的指令和获取的订阅日志
 logger.add('bot.log')
-logger.debug("output  debug message")
 
 # 定义bot管理员的telegram userid
 admin_id = ['管理员1的TG_ID', '管理员2的TG_ID', '管理员3的TG_ID']
