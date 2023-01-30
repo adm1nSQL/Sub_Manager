@@ -153,7 +153,7 @@ def callback_inline(call):
                 now_user = f" tg://user?id={call.from_user.id} "
             bot.send_message(call.message.chat.id, now_user + "天地三清，道法无敌，邪魔退让！退！退！退！👮‍♂️")
     except DeprecationWarning:
-        bot.send_message(call.message.chat.id, "😵😵这个订阅刚刚被其他管理员删了，请尝试其他操作")
+        bot.send_message(call.message.chat.id, "😵😵这个订阅刚刚被别的管理员删了，请尝试其他操作")
 
 
 # 使用帮助
