@@ -144,11 +144,14 @@ def callback_inline(call):
         if call.data == 'close':
             bot.delete_message(call.message.chat.id, call.message.message_id)
         else:
-            row_num = call.data
-            c.execute("SELECT rowid,URL,comment FROM My_sub WHERE rowid=?", (row_num,))
-            result = c.fetchone()
-            bot.send_message(call.message.chat.id, '*行号：*`{}`\n*订阅*：{}\n\n*说明*： `{}`'.format(result[0], result[1].replace("_", "\_"), result[2]), parse_mode='Markdown')
-            logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
+            try:
+                row_num = call.data
+                c.execute("SELECT rowid,URL,comment FROM My_sub WHERE rowid=?", (row_num,))
+                result = c.fetchone()
+                bot.send_message(call.message.chat.id, '*行号：*`{}`\n*订阅*：{}\n\n*说明*： `{}`'.format(result[0], result[1].replace("_", "\_"), result[2]), parse_mode='Markdown')
+                logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
+            except:
+                bot.send_message(call.message.chat.id, "😵😵这个订阅刚刚被别的管理员删了，请尝试其他操作")
     else:
         if call.from_user.username is not None:
             now_user = f" @{call.from_user.username} "
@@ -160,7 +163,7 @@ def callback_inline(call):
 # 使用帮助
 def help_sub(message):
     doc = '''
-    时间有限暂未做太多异常处理，请遵循使用说明的格式规则，否则程序可能出错,如果出现异常情况，联系bot的主人处理
+    时间有限暂未做太多异常处理，请遵循使用说明的格式规则，否则程序可能出错,如果出现异常情况，联系 @KKAA2222 处理
 🌈使用说明：
     1. 添加数据：/add url 备注
     2. 删除数据：/del 行数
