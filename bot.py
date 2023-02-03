@@ -56,7 +56,8 @@ def command_loader(bot: telebot.TeleBot, **kwargs):
                         c.execute("INSERT INTO My_sub VALUES(?,?)", (df.iloc[i, 0], df.iloc[i, 1]))
                         conn.commit()
                 bot.reply_to(message, "✅导入成功！")
-            except:
+            except Exception as e:
+                print(e)
                 bot.send_message(message.chat.id, "😵😵导入的文件格式错误，请检查文件后缀是否为xlsx后重新导入")
         else:
             bot.reply_to(message, "😡😡😡你不是管理员，禁止操作！")

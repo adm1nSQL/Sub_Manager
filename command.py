@@ -17,7 +17,8 @@ def add_sub(message, **kwargs):
             c.execute("INSERT INTO My_sub VALUES(?,?)", (url, comment))
             conn.commit()
             bot.reply_to(message, "✅添加成功！")
-    except:
+    except Exception as e:
+        print(e)
         bot.send_message(message.chat.id, "😵😵输入格式有误，请检查后重新输入")
 
 
@@ -31,7 +32,8 @@ def delete_sub(message, **kwargs):
         c.execute("DELETE FROM My_sub WHERE rowid=?", (row_num,))
         conn.commit()
         bot.reply_to(message, "✅删除成功！")
-    except:
+    except Exception as e:
+        print(e)
         bot.send_message(message.chat.id, "😵😵输入格式有误，请检查后重新输入")
 
 
@@ -60,7 +62,8 @@ def search_sub(message, **kwargs):
             bot.reply_to(message, f'卧槽，天降订阅！！！👮‍♂️发现了{str(total)}条订阅！！！快点击查看⏬', reply_markup=reply_markup)
         else:
             bot.reply_to(message, '😅没有查找到结果！')
-    except:
+    except Exception as e:
+        print(e)
         bot.send_message(message.chat.id, "😵😵您输入的内容有误，请检查后重新输入")
 
 
@@ -77,7 +80,8 @@ def update_sub(message, **kwargs):
         c.execute("UPDATE My_sub SET URL=?, comment=? WHERE rowid=?", (url, comment, row_num))
         conn.commit()
         bot.reply_to(message, "✅更新成功！")
-    except:
+    except Exception as e:
+        print(e)
         bot.send_message(message.chat.id, "😵😵输入格式有误，请检查后重新输入")
 
 
