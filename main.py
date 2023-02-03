@@ -55,9 +55,9 @@ def add_sub(message):
         else:
             c.execute("INSERT INTO My_sub VALUES(?,?)", (url, comment))
             conn.commit()
-            conn.close()
             bot.reply_to(message, "✅添加成功！")
-    except:
+    except Exception as t:
+        print(t)
         bot.send_message(message.chat.id, "😵😵输入格式有误，请检查后重新输入")
 
 
@@ -67,9 +67,9 @@ def delete_sub(message):
         row_num = message.text.split()[1]
         c.execute("DELETE FROM My_sub WHERE rowid=?", (row_num,))
         conn.commit()
-        conn.close()
         bot.reply_to(message, "✅删除成功！")
-    except:
+    except Exception as t:
+        print(t)
         bot.send_message(message.chat.id, "😵😵输入格式有误，请检查后重新输入")
 
 
@@ -95,7 +95,8 @@ def search_sub(message):
             bot.reply_to(message, f'卧槽，天降订阅！！！👮‍♂️发现了{str(total)}条订阅！！！快点击查看⏬', reply_markup=reply_markup)
         else:
             bot.reply_to(message, '😅没有查找到结果！')
-    except:
+    except Exception as t:
+        print(t)
         bot.send_message(message.chat.id, "😵😵您输入的内容有误，请检查后重新输入")
 
 
@@ -108,9 +109,9 @@ def update_sub(message):
         comment = url_comment[1]
         c.execute("UPDATE My_sub SET URL=?, comment=? WHERE rowid=?", (url, comment, row_num))
         conn.commit()
-        conn.close()
         bot.reply_to(message, "✅更新成功！")
-    except:
+    except Exception as t:
+        print(t)
         bot.send_message(message.chat.id, "😵😵输入格式有误，请检查后重新输入")
 
 
@@ -131,7 +132,8 @@ def handle_document(message):
                     c.execute("INSERT INTO My_sub VALUES(?,?)", (df.iloc[i, 0], df.iloc[i, 1]))
                     conn.commit()
             bot.reply_to(message, "✅导入成功！")
-        except:
+        except Exception as t:
+            print(t)
             bot.send_message(message.chat.id, "😵😵导入的文件格式错误，请检查文件后缀是否为xlsx后重新导入")
     else:
         bot.reply_to(message, "😡😡😡你不是管理员，禁止操作！")
@@ -150,7 +152,7 @@ def callback_inline(call):
                 result = c.fetchone()
                 bot.send_message(call.message.chat.id, '*行号：*`{}`\n*订阅*：{}\n\n*说明*： `{}`'.format(result[0], result[1].replace("_", "\_"), result[2]), parse_mode='Markdown')
                 logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
-            except:
+            except TypeError:
                 bot.send_message(call.message.chat.id, "😵😵这个订阅刚刚被别的管理员删了，请尝试其他操作")
     else:
         if call.from_user.username is not None:
@@ -163,7 +165,7 @@ def callback_inline(call):
 # 使用帮助
 def help_sub(message):
     doc = '''
-    时间有限暂未做太多异常处理，请遵循使用说明的格式规则，否则程序可能出错,如果出现异常情况，联系bot的主人处理
+    时间有限暂未做太多异常处理，请遵循使用说明的格式规则，否则程序可能出错,如果出现异常情况，联系 @KKAA2222 处理
 🌈使用说明：
     1. 添加数据：/add url 备注
     2. 删除数据：/del 行数
@@ -180,4 +182,5 @@ if __name__ == '__main__':
         try:
             bot.polling(none_stop=True)
         except Exception as e:
+            print(e)
             sleep(30)
