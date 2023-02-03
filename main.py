@@ -147,7 +147,7 @@ def callback_inline(call):
             row_num = call.data
             c.execute("SELECT rowid,URL,comment FROM My_sub WHERE rowid=?", (row_num,))
             result = c.fetchone()
-            bot.send_message(call.message.chat.id, '*行号：*`{}`\n*订阅地址*：{}\n\n*说明*： `{}`'.format(result[0], result[1].replace("_", "\_"), result[2]), parse_mode='Markdown')
+            bot.send_message(call.message.chat.id, '*行号：*`{}`\n*订阅*：{}\n\n*说明*： `{}`'.format(result[0], result[1].replace("_", "\_"), result[2]), parse_mode='Markdown')
             logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
     else:
         if call.from_user.username is not None:
