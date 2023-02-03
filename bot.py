@@ -80,7 +80,8 @@ def callback_loader(bot: telebot.TeleBot, **kwargs):
                     bot.send_message(call.message.chat.id,
                                      '行号：{}\n订阅地址：{}\n说明： {}'.format(result[0], result[1], result[2]))
                     logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
-                except:
+                except Exception as e:
+                    print(e)
                     bot.send_message(call.message.chat.id, "😵😵这个订阅刚刚被别的管理员删了，请尝试其他操作")
         else:
             if call.from_user.username is not None:
