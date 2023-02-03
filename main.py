@@ -4,7 +4,13 @@ import json
 import telebot
 from time import sleep
 from loguru import logger
-	@@ -17,8 +18,14 @@
+from bot import loader
+# 1.22增加了日志功能，记录用户使用的指令和获取的订阅日志
+logger.add('bot.log')
+# 定义bot管理员的telegram userid ['1881396047']
+admin_id = []
+# 定义bot
+bot_token = ''
 if __name__ == '__main__':
     # 命令行参数处理
     if len(sys.argv) == 1:
@@ -19,7 +25,14 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ha:t:", ["admin=", "token="])
     except getopt.GetoptError:
-	@@ -33,13 +40,14 @@
+        print('Usage:\n -a, --admin \t管理员名单id,多个id之间以英文逗号(,)间隔\n -t, --token \tTelegram机器人的bot_token')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print('Usage(使用帮助):\n -a, --admin \t管理员名单id,多个id之间以英文逗号(,)间隔\n -t, --token \tTelegram机器人的bot_token')
+            sys.exit()
+        elif opt in ("-a", "--admin"):
+            admin_id = arg.split(',')
         elif opt in ("-t", "--token"):
             bot_token = arg
     logger.info(f"管理员名单加载: {str(admin_id)}")
