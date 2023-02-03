@@ -34,3 +34,9 @@ if __name__ == '__main__':
     print('=====程序已启动=====')
     while True:
         try:
+            loader(bot, admin_id=admin_id)
+            bot.polling(none_stop=True)
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            sleep(30)
