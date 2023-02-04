@@ -44,4 +44,4 @@ python main.py --admin <管理员的TelegramID> --token <bot_token>
 python main.py
 ```
 
-* 祝你好运!
+
