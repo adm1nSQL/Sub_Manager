@@ -9,7 +9,7 @@ from bot import loader
 # 1.22增加了日志功能，记录用户使用的指令和获取的订阅日志
 logger.add('bot.log')
 
-# 定义bot管理员的telegram userid ['1881396047']
+# 定义bot管理员的telegram userid ['xxxxxxxxx']
 admin_id = []
 
 # 定义bot
