@@ -6,12 +6,12 @@
 
 * 从 [@BotFather](https://t.me/BotFather) 那里创建一个机器人，获得该机器人的bot_token，应形如：
 
-    bot_token = "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+    bot_token = "xxxxx:xxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
     这步不会请Google。
 * 动动你的小手拉取本项目的源码
 ```shell
-apt install -y git && git clone https://github.com/adm1nSQL/Sub_Manger.git -b dev && cd Sub_Manger
+apt install -y git && git clone https://github.com/adm1nSQL/Sub_Manger.git && cd Sub_Manger
 ```
 
 * 安装依赖 Python 3.6 以上
