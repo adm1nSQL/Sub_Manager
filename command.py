@@ -97,7 +97,7 @@ def help_sub(message, **kwargs):
     2. 删除数据：/del 行数
     3. 查找数据：/search 内容
     4. 修改数据：/update 行数 订阅链接 备注
-    5. 导入xlsx表格：发送xlsx表格（注意文件格式！A列为订阅地址，B列为对应的备注）
+    5. 导入xlsx表格：发送xlsx或xls表格（注意文件格式！A列为订阅地址，B列为对应的备注）
     TG_Channel: @fffffx2 
     '''
     bot.send_message(message.chat.id, doc)
