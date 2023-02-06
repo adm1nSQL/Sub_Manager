@@ -148,4 +148,3 @@ class file_analyze:
 
 if __name__ == '__main__':
     pass
-    #  print(file_analyze.filetype(r"C:\Users\86133\Desktop\2023-02-03T16-18-24.zip"))
