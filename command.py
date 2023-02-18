@@ -33,6 +33,8 @@ def delete_sub(message, **kwargs):
         row_num = message.text.split()[1]
         c.execute("DELETE FROM My_sub WHERE rowid=?", (row_num,))
         conn.commit()
+        c.execute("VACUUM")
+        conn.commit()
         bot.reply_to(message, "✅删除成功！")
     except Exception as e:
         print(e)
@@ -61,7 +63,7 @@ def search_sub(message, **kwargs):
             total = len(result)
             keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
             reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
-            bot.reply_to(message, f'卧槽，天降订阅！！！👮‍♂️发现了{str(total)}条订阅！！！快点击查看⏬', reply_markup=reply_markup)
+            bot.reply_to(message, f'卧槽，天降订阅🎁发现了{str(total)}个目标，快点击查看⏬', reply_markup=reply_markup)
         else:
             bot.reply_to(message, '😅没有查找到结果！')
     except Exception as e:
