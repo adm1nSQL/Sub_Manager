@@ -17,10 +17,11 @@ def loader(bot: telebot.TeleBot, **kwargs):
 
 
 def command_loader(bot: telebot.TeleBot, **kwargs):
+    super_admin = kwargs.get('super_admin', '')
     admin_id = kwargs.get('admin_id', [])
 
     # 接收用户输入的指令
-    @bot.message_handler(commands=['add', 'del', 'search', 'update', 'help'])
+    @bot.message_handler(commands=['add', 'del', 'search', 'update', 'help', 'backup', 'log'])
     def handle_command(message):
         if str(message.from_user.id) in admin_id:
             command = message.text.split()[0]
@@ -36,8 +37,19 @@ def command_loader(bot: telebot.TeleBot, **kwargs):
             elif command == '/help':
                 help_sub(message, bot=bot)
         else:
-            # bot.send_message(message.chat.id, "你没有权限操作，别瞎搞！")
             bot.reply_to(message, "❌你没有操作权限，别瞎搞！")
+        if str(message.from_user.id) == super_admin:
+            command = message.text.split()[0]
+            try:
+                if command == '/backup' and message.chat.type == 'private':
+                    backup(message, **kwargs, bot=bot)
+                    logger.debug(f"用户{message.from_user.id}备份了数据库")
+                elif command == '/log' and message.chat.type == 'private':
+                    log(message, **kwargs, bot=bot)
+            except Exception as e:
+                bot.reply_to(message, f"发生错误：{e}")
+        else:
+            bot.reply_to(message, "该操作仅限超级管理员！")
 
     # 接收xlsx表格
     @logger.catch()
