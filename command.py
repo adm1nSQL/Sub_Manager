@@ -1,6 +1,7 @@
 # 添加数据
 import struct
-
+import shutil
+import os
 import telebot
 
 
@@ -93,16 +94,48 @@ def update_sub(message, **kwargs):
 def help_sub(message, **kwargs):
     bot = kwargs.get('bot', None)
     doc = '''
-    时间有限暂未做太多异常处理，请遵循使用说明的格式规则，否则程序可能出错,如果出现异常情况，联系bot的主人处理
 🌈使用说明：
     1. 添加数据：/add url 备注
     2. 删除数据：/del 行数
     3. 查找数据：/search 内容
     4. 修改数据：/update 行数 订阅链接 备注
     5. 导入xlsx表格：发送xlsx或xls表格（注意文件格式！A列为订阅地址，B列为对应的备注）
-    TG_Channel: @fffffx2 
+    6. 备份数据库：私聊发送 /backup ，该功能仅限超级管理员
+    7. 日志输出： 私聊发送 /log ，该功能仅限超级管理员
+    
+☎️*TG_Channel: @fffffx2 *
     '''
-    bot.send_message(message.chat.id, doc)
+    bot.send_message(message.chat.id, doc, parse_mode='Markdown')
+
+
+# 数据库备份
+def backup(message, **kwargs):
+    bot = kwargs.get('bot', None)
+    try:
+        backup_dir = './backup'
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)
+        backup_file = os.path.join(backup_dir, 'My_sub_backup.db')
+        shutil.copyfile('My_sub.db', backup_file)
+        with open(backup_file, 'rb') as file:
+            bot.send_document(message.chat.id, file)
+        for file in os.listdir(backup_dir):
+            if file != 'My_sub_backup.db':
+                os.remove(os.path.join(backup_dir, file))
+        bot.reply_to(message, "✅数据库备份完成")
+    except Exception as t:
+        bot.reply_to(message, f"⚠️出现问题了，报错内容为: {t}")
+
+
+# 日志输出
+def log(message, **kwargs):
+    bot = kwargs.get('bot', None)
+    try:
+        with open('./bot.log', 'rb') as f:
+            bot.send_document(message.chat.id, f)
+            f.close()
+    except Exception as t:
+        bot.reply_to(message, f"⚠️出错了: {t}")
 
 
 class file_analyze:
