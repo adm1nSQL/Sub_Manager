@@ -34,9 +34,9 @@ pip3 install -r requirements.txt
 
 * 运行
 
-首次运行需传入参数：
+首次运行需传入参数(！！！运行时去掉<>)：
 ```shell
-python main.py -s 超级管理员的TG_ID -a 超级管理员的TG_ID,管理员1的TG_ID -t bot_token
+python main.py -s <超级管理员的TG_ID> -a <超级管理员的TG_ID,管理员1的TG_ID> -t <bot_token>
 ```
 
 下次运行直接:
