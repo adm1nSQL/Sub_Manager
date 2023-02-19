@@ -47,9 +47,9 @@ def command_loader(bot: telebot.TeleBot, **kwargs):
                 elif command == '/log' and message.chat.type == 'private':
                     log(message, **kwargs, bot=bot)
             except Exception as e:
-                bot.reply_to(message, f"发生错误：{e}")
+                bot.reply_to(message, f"⚠️发生错误：{e}")
         else:
-            bot.reply_to(message, "该操作仅限超级管理员！")
+            bot.reply_to(message, "🈲该操作仅限超级管理员！")
 
     # 接收xlsx表格
     @logger.catch()
