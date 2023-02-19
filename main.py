@@ -25,7 +25,6 @@ if __name__ == '__main__':
                 super_admin = config.get('super_admin', '')
                 admin_id = config.get('admin', [])
                 bot_token = config.get('token', '')
-                print(super_admin + admin_id + bot_token)
         except FileNotFoundError:
             print('Usage:\n -s, --super_admin \t超级管理员id\n -a, --admin \t管理员名单id,多个id之间以英文逗号(,)间隔\n -t, '
                   '--token \tTelegram机器人的bot_token')
