@@ -23,8 +23,8 @@ def command_loader(bot: telebot.TeleBot, **kwargs):
     # 接收用户输入的指令
     @bot.message_handler(commands=['add', 'del', 'search', 'update', 'help', 'backup', 'log'])
     def handle_command(message):
+        command = message.text.split()[0]
         if str(message.from_user.id) in admin_id:
-            command = message.text.split()[0]
             logger.debug(f"用户{message.from_user.id}使用了{command}功能")
             if command == '/add':
                 add_sub(message, cursor=c, conn=conn, bot=bot)
@@ -39,7 +39,6 @@ def command_loader(bot: telebot.TeleBot, **kwargs):
         else:
             bot.reply_to(message, "❌你没有操作权限，别瞎搞！")
         if str(message.from_user.id) == super_admin:
-            command = message.text.split()[0]
             try:
                 if command == '/backup' and message.chat.type == 'private':
                     backup(message, **kwargs, bot=bot)
@@ -48,6 +47,8 @@ def command_loader(bot: telebot.TeleBot, **kwargs):
                     log(message, **kwargs, bot=bot)
             except Exception as e:
                 bot.reply_to(message, f"⚠️发生错误：{e}")
+        elif str(message.from_user.id) in admin_id:
+            pass
         else:
             bot.reply_to(message, "🈲该操作仅限超级管理员！")
 
