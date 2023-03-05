@@ -101,8 +101,7 @@ def callback_loader(bot: telebot.TeleBot, **kwargs):
                     print(e)
                     bot.send_message(call.message.chat.id, "😵😵这个订阅刚刚被别的管理员删了，请尝试其他操作")
         else:
-            if call.from_user.username is not None:
-                now_user = f" @{call.from_user.username} "
-            else:
-                now_user = f" tg://user?id={call.from_user.id} "
-            bot.send_message(call.message.chat.id, now_user + "天地三清，道法无敌，邪魔退让！退！退！退！👮‍♂️")
+            try :
+                bot.answer_callback_query(call.id, f"天地三清，道法无敌，邪魔退让！退！退！退！👮‍", show_alert=True)
+            except :
+                pass
