@@ -1,4 +1,4 @@
 pyTelegramBotAPI
 pandas==1.5.2
 openpyxl==3.0.10
-loguru == 0.6.0
+loguru==0.6.0
