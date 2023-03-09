@@ -100,5 +100,8 @@ def callback_loader(bot: telebot.TeleBot, **kwargs):
                 except Exception as e:
                     print(e)
                     bot.send_message(call.message.chat.id, f"{e}")
-        else:
-
+        else:  # 弹窗提示来自 @cpploveme ，合并失误手动添加
+            try :
+                bot.answer_callback_query(call.id, f"天地三清，道法无敌，邪魔退让！退！退！退！👮‍", show_alert=True)
+            except :
+                pass
