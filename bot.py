@@ -101,8 +101,4 @@ def callback_loader(bot: telebot.TeleBot, **kwargs):
                     print(e)
                     bot.send_message(call.message.chat.id, f"{e}")
         else:
-            if call.from_user.username is not None:
-                now_user = f" @{call.from_user.username} "
-            else:
-                now_user = f"<a href=\"tg://user?id={call.from_user.id}\">{call.from_user.id}</a>"
-            bot.send_message(call.message.chat.id, f"{now_user}天地三清，道法无敌，邪魔退让！退！退！退！👮‍♂️", parse_mode='HTML')
+
