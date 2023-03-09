@@ -99,9 +99,6 @@ def callback_loader(bot: telebot.TeleBot, **kwargs):
                     logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
                 except Exception as e:
                     print(e)
-                    bot.send_message(call.message.chat.id, "😵😵这个订阅刚刚被别的管理员删了，请尝试其他操作")
+                    bot.send_message(call.message.chat.id, f"{e}")
         else:
-            try :
-                bot.answer_callback_query(call.id, f"天地三清，道法无敌，邪魔退让！退！退！退！👮‍", show_alert=True)
-            except :
-                pass
+
