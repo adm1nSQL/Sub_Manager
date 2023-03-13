@@ -138,8 +138,14 @@ def update_buttons(callback_query, user_id, bot=None):
         keyboard.append([button])
     if total > 1:
         page_info = f'第 {current_page}/{total} 页'
-        prev_button = telebot.types.InlineKeyboardButton('◀️上一页', callback_data='prev')
-        next_button = telebot.types.InlineKeyboardButton('下一页▶️', callback_data='next')
+        if current_page == 1 : 
+            prev_button = telebot.types.InlineKeyboardButton('        ', callback_data='page_info')
+        else :
+            prev_button = telebot.types.InlineKeyboardButton('◀️上一页', callback_data='prev')
+        if current_page == total : 
+            next_button = telebot.types.InlineKeyboardButton('        ', callback_data='page_info')
+        else :
+            next_button = telebot.types.InlineKeyboardButton('下一页▶️', callback_data='next')
         page_button = telebot.types.InlineKeyboardButton(page_info, callback_data='page_info')
         page_buttons = [prev_button, page_button, next_button]
         keyboard.append(page_buttons)

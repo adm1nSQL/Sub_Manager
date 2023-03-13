@@ -68,7 +68,7 @@ def search_sub(message, **kwargs):
                 keyboard.append([button])
             if total > 1:
                 page_info = f'第 {current_page}/{total} 页'
-                prev_button = telebot.types.InlineKeyboardButton('◀️上一页', callback_data='prev')
+                prev_button = telebot.types.InlineKeyboardButton('        ', callback_data='page_info')
                 next_button = telebot.types.InlineKeyboardButton('下一页▶️', callback_data='next')
                 page_button = telebot.types.InlineKeyboardButton(page_info, callback_data='page_info')
                 page_buttons = [prev_button, page_button, next_button]
