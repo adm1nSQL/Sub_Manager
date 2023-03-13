@@ -43,32 +43,48 @@ def delete_sub(message, **kwargs):
 
 
 # 查找数据
+items_per_page = 10
+result = None
+callbacks = {}
+
+
 def search_sub(message, **kwargs):
+    global items_per_page, total, result, current_page
     c = kwargs.get('cursor', None)
     bot = kwargs.get('bot', None)
-    # conn = kwargs.get('conn', None)
     try:
         search_str = message.text.split()[1]
         c.execute("SELECT rowid,URL,comment FROM My_sub WHERE URL LIKE ? OR comment LIKE ?",
                   ('%' + search_str + '%', '%' + search_str + '%'))
         result = c.fetchall()
         if result:
+            pages = [result[i:i + items_per_page] for i in range(0, len(result), items_per_page)]
+            total = len(pages)
+            current_page = 1
+            current_items = pages[current_page - 1]
             keyboard = []
-            for i in range(0, len(result), 2):
-                row = result[i:i + 2]
-                keyboard_row = []
-                for item in row:
-                    button = telebot.types.InlineKeyboardButton(item[2], callback_data=item[0])
-                    keyboard_row.append(button)
-                keyboard.append(keyboard_row)
-            total = len(result)
+            for item in current_items:
+                button = telebot.types.InlineKeyboardButton(item[2], callback_data=item[0])
+                keyboard.append([button])
+            if total > 1:
+                page_info = f'第 {current_page}/{total} 页'
+                prev_button = telebot.types.InlineKeyboardButton('上一页', callback_data='prev')
+                next_button = telebot.types.InlineKeyboardButton('下一页', callback_data='next')
+                page_button = telebot.types.InlineKeyboardButton(page_info, callback_data='page_info')
+                page_buttons = [prev_button, page_button, next_button]
+                keyboard.append(page_buttons)
             keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
             reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
-            bot.reply_to(message, f'卧槽，天降订阅🎁发现了{str(total)}个目标，快点击查看⏬', reply_markup=reply_markup)
+            sent_message = bot.reply_to(message, f'卧槽，天降订阅🎁发现了{str(len(result))}个目标，快点击查看⏬', reply_markup=reply_markup)
+            global sent_message_id
+            sent_message_id = sent_message.message_id
+            user_id = message.from_user.id
+            callbacks[user_id] = {'total': total, 'current_page': current_page, 'result': result,
+                                  'sent_message_id': sent_message_id}
         else:
             bot.reply_to(message, '😅没有查找到结果！')
-    except Exception as e:
-        print(e)
+    except Exception as t:
+        print(t)
         bot.send_message(message.chat.id, "😵😵您输入的内容有误，请检查后重新输入")
 
 
