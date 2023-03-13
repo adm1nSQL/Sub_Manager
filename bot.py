@@ -86,22 +86,64 @@ def callback_loader(bot: telebot.TeleBot, **kwargs):
     # 按钮点击事件
     @bot.callback_query_handler(func=lambda call: True)
     def callback_inline(call):
-        if str(call.from_user.id) in admin_id:
+        global sent_message_id, current_page, callbacks
+        user_id = call.from_user.id
+        if str(user_id) in admin_id:
             if call.data == 'close':
-                bot.delete_message(call.message.chat.id, call.message.message_id)
+                delete_result = bot.delete_message(call.message.chat.id, call.message.message_id)
+                if delete_result is None:
+                    sent_message_id = None
+            elif call.data == 'prev' or call.data == 'next':
+                if user_id not in callbacks:
+                    callbacks[user_id] = {'result': [], 'total': 0, 'current_page': 1}
+                update_buttons(call, user_id, bot=bot)
+            elif call.data == 'page_info':
+                pass
             else:
                 try:
                     row_num = call.data
                     c.execute("SELECT rowid,URL,comment FROM My_sub WHERE rowid=?", (row_num,))
                     result = c.fetchone()
                     bot.send_message(call.message.chat.id,
-                                     '行号：{}\n订阅地址：{}\n说明： {}'.format(result[0], result[1], result[2]))
+                                     '*行号：*`{}`\n*订阅*：{}\n\n*说明*： `{}`'.format(result[0], result[1].replace("_", "\_"),
+                                                                               result[2]), parse_mode='Markdown')
                     logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
-                except Exception as e:
-                    print(e)
-                    bot.send_message(call.message.chat.id, f"{e}")
+                except TypeError as t:
+                    bot.send_message(call.message.chat.id, f"😵😵发生错误\n{t}")
         else:  # 弹窗提示来自 @cpploveme ，合并失误手动添加
-            try:
-                bot.answer_callback_query(call.id, f"天地三清，道法无敌，邪魔退让！退！退！退！👮‍", show_alert=True)
-            except:
+            try :
+                bot.answer_callback_query(call.id, f"🛎天地三清，道法无敌，邪魔退让！‍", show_alert=True)
+            except :
                 pass
+
+
+def update_buttons(callback_query, user_id, bot=None):
+    global callbacks
+    callback_data = callback_query.data
+    message = callback_query.message
+    message_id = message.message_id
+    current_page = callbacks[user_id]['current_page']
+    total = callbacks[user_id]['total']
+    result = callbacks[user_id]['result']
+    if callback_data == 'prev' and current_page > 1:
+        current_page -= 1
+    elif callback_data == 'next' and current_page < total:
+        current_page += 1
+    pages = [result[i:i + items_per_page] for i in range(0, len(result), items_per_page)]
+    current_items = pages[current_page - 1]
+    bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=message_id, reply_markup=None)
+    keyboard = []
+    for item in current_items:
+        button = telebot.types.InlineKeyboardButton(item[2], callback_data=item[0])
+        keyboard.append([button])
+    if total > 1:
+        page_info = f'第 {current_page}/{total} 页'
+        prev_button = telebot.types.InlineKeyboardButton('上一页', callback_data='prev')
+        next_button = telebot.types.InlineKeyboardButton('下一页', callback_data='next')
+        page_button = telebot.types.InlineKeyboardButton(page_info, callback_data='page_info')
+        page_buttons = [prev_button, page_button, next_button]
+        keyboard.append(page_buttons)
+    keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
+    reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
+    bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=message_id, reply_markup=reply_markup)
+    callbacks[user_id]['current_page'] = current_page
