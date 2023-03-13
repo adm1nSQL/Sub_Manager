@@ -112,7 +112,7 @@ def callback_loader(bot: telebot.TeleBot, **kwargs):
                     bot.send_message(call.message.chat.id, f"😵😵发生错误\n{t}")
         else:  # 弹窗提示来自 @cpploveme ，合并失误手动添加
             try :
-                bot.answer_callback_query(call.id, f"🛎天地三清，道法无敌，邪魔退让！‍", show_alert=True)
+                bot.answer_callback_query(call.id, f"⚠️天地三清，道法无敌，邪魔退让！‍", show_alert=True)
             except :
                 pass
 
@@ -138,8 +138,8 @@ def update_buttons(callback_query, user_id, bot=None):
         keyboard.append([button])
     if total > 1:
         page_info = f'第 {current_page}/{total} 页'
-        prev_button = telebot.types.InlineKeyboardButton('上一页', callback_data='prev')
-        next_button = telebot.types.InlineKeyboardButton('下一页', callback_data='next')
+        prev_button = telebot.types.InlineKeyboardButton('◀️上一页', callback_data='prev')
+        next_button = telebot.types.InlineKeyboardButton('下一页▶️', callback_data='next')
         page_button = telebot.types.InlineKeyboardButton(page_info, callback_data='page_info')
         page_buttons = [prev_button, page_button, next_button]
         keyboard.append(page_buttons)
