@@ -111,10 +111,10 @@ def callback_loader(bot: telebot.TeleBot, **kwargs):
                 except TypeError as t:
                     bot.send_message(call.message.chat.id, f"😵😵发生错误\n{t}")
         else:  # 弹窗提示来自 @cpploveme ，合并失误手动添加
-            try :
-                bot.answer_callback_query(call.id, f"⚠️天地三清，道法无敌，邪魔退让！‍", show_alert=True)
-            except :
-                pass
+        try:
+            bot.answer_callback_query(call.id, f"天地三清，道法无敌，邪魔避让！\n\n🈲‍", show_alert=True)
+        except:
+            pass
 
 
 def update_buttons(callback_query, user_id, bot=None):
