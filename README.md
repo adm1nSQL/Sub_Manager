@@ -42,7 +42,7 @@ python3 main.py -s <超级管理员的TG_ID> -a <超级管理员的TG_ID,管理�
 
 下次运行直接:
 ```shell
-python main.py
+python3 main.py
 ```
 
 
