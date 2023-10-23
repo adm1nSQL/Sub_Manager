@@ -151,5 +151,5 @@ def update_buttons(callback_query, user_id, bot=None):
         keyboard.append(page_buttons)
     keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
     reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
-    bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=message_id, reply_markup=reply_markup)
+    # bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=message_id, reply_markup=reply_markup)
     callbacks[user_id]['current_page'] = current_page
