@@ -68,14 +68,15 @@ def search_sub(message, **kwargs):
                 keyboard.append([button])
             if total > 1:
                 page_info = f'第 {current_page}/{total} 页'
-                prev_button = telebot.types.InlineKeyboardButton('        ', callback_data='page_info')
+                prev_button = telebot.types.InlineKeyboardButton('        ', callback_data='page_error')
                 next_button = telebot.types.InlineKeyboardButton('下一页▶️', callback_data='next')
                 page_button = telebot.types.InlineKeyboardButton(page_info, callback_data='page_info')
                 page_buttons = [prev_button, page_button, next_button]
                 keyboard.append(page_buttons)
             keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
             reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
-            sent_message = bot.reply_to(message, f'卧槽，天降订阅🎁发现了{str(len(result))}个目标，快点击查看⏬', reply_markup=reply_markup)
+            sent_message = bot.reply_to(message, f'卧槽，天降订阅🎁发现了{str(len(result))}个目标，快点击查看⏬',
+                                        reply_markup=reply_markup)
             global sent_message_id
             sent_message_id = sent_message.message_id
             user_id = message.from_user.id
@@ -118,7 +119,7 @@ def help_sub(message, **kwargs):
     5. 导入xlsx表格：发送xlsx或xls表格（注意文件格式！A列为订阅地址，B列为对应的备注）
     6. 备份数据库：私聊发送 /backup ，该功能仅限超级管理员
     7. 日志输出： 私聊发送 /log ，该功能仅限超级管理员
-    
+
 ☎️*TG_Channel: @fffffx2 *
     '''
     bot.send_message(message.chat.id, doc, parse_mode='Markdown')
