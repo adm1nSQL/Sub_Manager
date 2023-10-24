@@ -1,7 +1,9 @@
 import sqlite3
 import pandas as pd
 from loguru import logger
+import json
 from command import *
+
 
 # 定义数据库
 conn = sqlite3.connect('My_sub.db', check_same_thread=False)
@@ -21,7 +23,7 @@ def command_loader(bot: telebot.TeleBot, **kwargs):
     admin_id = kwargs.get('admin_id', [])
 
     # 接收用户输入的指令
-    @bot.message_handler(commands=['add', 'del', 'search', 'update', 'help', 'backup', 'log'])
+    @bot.message_handler(commands=['add', 'del', 'search', 'update', 'help', 'backup', 'log', 'admin', 'remove', 'users'])
     def handle_command(message):
         command = message.text.split()[0]
         if str(message.from_user.id) in admin_id:
@@ -36,8 +38,47 @@ def command_loader(bot: telebot.TeleBot, **kwargs):
                 update_sub(message, cursor=c, conn=conn, bot=bot)
             elif command == '/help':
                 help_sub(message, bot=bot)
+
+            elif command == '/admin':
+                new_admin = str(message.text.split()[1])
+                with open('config.json', 'r', encoding='utf-8') as fp:
+                    data = json.load(fp)
+                if new_admin in data['admin']:
+                    bot.reply_to(message, "😅管理员已存在!")
+                    return
+                else:
+                    data.get('admin').append(new_admin)
+                    with open('config.json', 'w', encoding='utf-8') as fp:
+                        json.dump(data, fp)
+                    with open('config.json', 'r', encoding='utf-8') as fp:
+                        data = json.load(fp)
+                    new_admins = data.get('admin', [])
+                    bot.reply_to(message, "✅添加成功，当前管理员列表:\n" + str(new_admins))
+
+            elif command == '/remove':
+                del_admin = message.text.split()[1]
+                with open('config.json', 'r', encoding='utf-8') as fp:
+                    data = json.load(fp)
+                if del_admin in data['admin']:
+                    data['admin'].remove(del_admin)
+                    with open('config.json', 'w', encoding='utf-8') as fp:
+                        json.dump(data, fp)
+                    with open('config.json', 'r', encoding='utf-8') as fp:
+                        data = json.load(fp)
+                    new_admins = data.get('admin', [])
+                    bot.reply_to(message, "✅移除成功，当前管理员列表:\n" + str(new_admins))
+                else:
+                    bot.reply_to(message, "❌该管理员不存在!")
+
+            elif command == '/users':
+                with open('config.json', 'r', encoding='utf-8') as fp:
+                    data = json.load(fp)
+                new_admins = data.get('admin', [])
+                bot.reply_to(message, "✅查询成功，当前管理员列表:\n" + str(new_admins))
+
         else:
             bot.reply_to(message, "❌你没有操作权限，别瞎搞！")
+
         if str(message.from_user.id) == super_admin:
             try:
                 if command == '/backup' and message.chat.type == 'private':
@@ -98,7 +139,11 @@ def callback_loader(bot: telebot.TeleBot, **kwargs):
                     callbacks[user_id] = {'result': [], 'total': 0, 'current_page': 1}
                 update_buttons(call, user_id, bot=bot)
             elif call.data == 'page_info':
-                pass
+                if user_id not in callbacks:
+                    callbacks[user_id] = {'result': [], 'total': 0, 'current_page': 1}
+                update_buttons(call, user_id, bot=bot)
+            elif call.data == 'page_error':
+                bot.answer_callback_query(call.id, f"空白按钮点击无效")
             else:
                 try:
                     row_num = call.data
@@ -110,7 +155,7 @@ def callback_loader(bot: telebot.TeleBot, **kwargs):
                     logger.debug(f"用户{call.from_user.id}从BOT获取了{result}")
                 except TypeError as t:
                     bot.send_message(call.message.chat.id, f"😵😵发生错误\n{t}")
-        else:  # 弹窗提示来自 @cpploveme ，合并失误手动添加
+        else:
             try:
                 bot.answer_callback_query(call.id, f"天地三清，道法无敌，邪魔避让！\n\n🈲‍", show_alert=True)
             except:
@@ -129,20 +174,21 @@ def update_buttons(callback_query, user_id, bot=None):
         current_page -= 1
     elif callback_data == 'next' and current_page < total:
         current_page += 1
+    elif callback_data == 'page_info':
+        current_page = 1
     pages = [result[i:i + items_per_page] for i in range(0, len(result), items_per_page)]
     current_items = pages[current_page - 1]
-    bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=message_id, reply_markup=None)
     keyboard = []
     for item in current_items:
         button = telebot.types.InlineKeyboardButton(item[2], callback_data=item[0])
         keyboard.append([button])
     if total > 1:
         page_info = f'第 {current_page}/{total} 页'
-        if current_page == 1 : 
+        if current_page == 1 :
             prev_button = telebot.types.InlineKeyboardButton('        ', callback_data='page_info')
         else :
             prev_button = telebot.types.InlineKeyboardButton('◀️上一页', callback_data='prev')
-        if current_page == total : 
+        if current_page == total :
             next_button = telebot.types.InlineKeyboardButton('        ', callback_data='page_info')
         else :
             next_button = telebot.types.InlineKeyboardButton('下一页▶️', callback_data='next')
@@ -151,5 +197,5 @@ def update_buttons(callback_query, user_id, bot=None):
         keyboard.append(page_buttons)
     keyboard.append([telebot.types.InlineKeyboardButton('❎结束搜索', callback_data='close')])
     reply_markup = telebot.types.InlineKeyboardMarkup(keyboard)
-    # bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=message_id, reply_markup=reply_markup)
+    bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=message_id, reply_markup=reply_markup)
     callbacks[user_id]['current_page'] = current_page
