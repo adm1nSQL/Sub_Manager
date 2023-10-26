@@ -1,7 +1,7 @@
 import sqlite3
 import pandas as pd
 from loguru import logger
-import json
+import yaml
 from command import *
 
 
@@ -19,8 +19,10 @@ def loader(bot: telebot.TeleBot, **kwargs):
 
 
 def command_loader(bot: telebot.TeleBot, **kwargs):
-    super_admin = kwargs.get('super_admin', '')
-    admin_id = kwargs.get('admin_id', [])
+    with open('./config.yaml', 'r', encoding='utf-8') as fp:
+        env_config = yaml.safe_load(fp)
+    super_admin = env_config['super_admin']
+    admin_id = env_config['admin']
 
     # 接收用户输入的指令
     @bot.message_handler(commands=['add', 'del', 'search', 'update', 'help', 'backup', 'log', 'admin', 'remove', 'users'])
@@ -41,40 +43,33 @@ def command_loader(bot: telebot.TeleBot, **kwargs):
 
             elif command == '/admin':
                 new_admin = str(message.text.split()[1])
-                with open('config.json', 'r', encoding='utf-8') as fp:
-                    data = json.load(fp)
-                if new_admin in data['admin']:
+                with open('./config.yaml', 'r', encoding='utf-8') as fp:
+                    config = yaml.safe_load(fp)
+                if new_admin in config['admin']:
                     bot.reply_to(message, "😅管理员已存在!")
                     return
                 else:
-                    data.get('admin').append(new_admin)
-                    with open('config.json', 'w', encoding='utf-8') as fp:
-                        json.dump(data, fp)
-                    with open('config.json', 'r', encoding='utf-8') as fp:
-                        data = json.load(fp)
-                    new_admins = data.get('admin', [])
-                    bot.reply_to(message, "✅添加成功，当前管理员列表:\n" + str(new_admins))
+                    config['admin'].append(new_admin)
+                    with open("./config.yaml", "w", encoding='utf-8') as config_file:
+                        yaml.dump(config, config_file, default_flow_style=False)
+                    bot.reply_to(message, "✅添加成功，当前管理员列表:\n" + str(config['admin']))
 
             elif command == '/remove':
                 del_admin = message.text.split()[1]
-                with open('config.json', 'r', encoding='utf-8') as fp:
-                    data = json.load(fp)
-                if del_admin in data['admin']:
-                    data['admin'].remove(del_admin)
-                    with open('config.json', 'w', encoding='utf-8') as fp:
-                        json.dump(data, fp)
-                    with open('config.json', 'r', encoding='utf-8') as fp:
-                        data = json.load(fp)
-                    new_admins = data.get('admin', [])
-                    bot.reply_to(message, "✅移除成功，当前管理员列表:\n" + str(new_admins))
+                with open('./config.yaml', 'r', encoding='utf-8') as fp:
+                    config = yaml.safe_load(fp)
+                if del_admin in config['admin']:
+                    config['admin'].remove(del_admin)
+                    with open('./config.yaml', 'w', encoding='utf-8') as fp:
+                        yaml.dump(config, fp, default_flow_style=False)
+                    bot.reply_to(message, "✅移除成功，当前管理员列表:\n" + str(config['admin']))
                 else:
                     bot.reply_to(message, "❌该管理员不存在!")
 
             elif command == '/users':
-                with open('config.json', 'r', encoding='utf-8') as fp:
-                    data = json.load(fp)
-                new_admins = data.get('admin', [])
-                bot.reply_to(message, "✅查询成功，当前管理员列表:\n" + str(new_admins))
+                with open('./config.yaml', 'r', encoding='utf-8') as fp:
+                    config = yaml.safe_load(fp)
+                bot.reply_to(message, "✅查询成功，当前管理员列表:\n" + str(config['admin']))
 
         else:
             bot.reply_to(message, "❌你没有操作权限，别瞎搞！")
