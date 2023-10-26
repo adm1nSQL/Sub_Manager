@@ -36,7 +36,7 @@ pip3 install -r requirements.txt
 
 首次运行需传入参数：
 ```shell
-python3 main.py -s 超级管理员的TG_ID -a 超级管理员的TG_ID -t <bot_token>
+python3 main.py -s 超级管理员的TG_ID -a 超级管理员的TG_ID -t bot_token
 ```
 
 ！！注意！！下次运行直接使用下方启动方式，否则你添加的管理员名单会被覆盖:
