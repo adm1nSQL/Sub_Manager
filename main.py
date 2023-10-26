@@ -1,10 +1,11 @@
 import getopt
 import sys
-import json
+import yaml
 import telebot
 from time import sleep
 from loguru import logger
 from bot import loader
+
 
 # 1.22增加了日志功能，记录用户使用的指令和获取的订阅日志
 logger.add('bot.log')
@@ -20,11 +21,11 @@ if __name__ == '__main__':
     # 命令行参数处理
     if len(sys.argv) == 1:
         try:
-            with open('./config.json', 'r', encoding='utf-8') as fp:
-                config = json.load(fp)
-                super_admin = config.get('super_admin', '')
-                admin_id = config.get('admin', [])
-                bot_token = config.get('token', '')
+            with open('./config.yaml', 'r', encoding='utf-8') as fp:
+                config = yaml.safe_load(fp)
+                super_admin = config['super_admin']
+                admin_id = config['admin']
+                bot_token = config['token']
         except FileNotFoundError:
             print('Usage:\n -s, --super_admin \t超级管理员id\n -a, --admin \t管理员名单id,多个id之间以英文逗号(,)间隔\n -t, '
                   '--token \tTelegram机器人的bot_token')
@@ -47,8 +48,9 @@ if __name__ == '__main__':
         elif opt in ("-t", "--token"):
             bot_token = arg
     logger.info(f"超级管理员名单加载: {super_admin}，管理员名单加载: {str(admin_id)}")
-    with open('./config.json', 'w', encoding='utf-8') as fp:
-        json.dump({'super_admin': super_admin, 'admin': admin_id, 'token': bot_token}, fp)
+    with open('./config.yaml', 'w', encoding='utf-8') as fp:
+        yaml.dump({'super_admin': super_admin, 'admin': admin_id, 'token': bot_token}, fp)
+
     if bot_token and super_admin and admin_id:
         bot = telebot.TeleBot(bot_token)
     else:
